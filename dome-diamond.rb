@@ -21,16 +21,16 @@ class PolygonalConvexDome
 		#<DIALOG>
 		#<default>
 		config = [	
-			# ['T_ShowMatrix','Non','MatrixView',[["Oui","Non"].join("|")]],
+			# ['T_ShowMatrix','Non','MatrixView',"Oui|Non"],
 			['N_Cotes',16,'Côtés de Révolution'],
 			['N_Niveaux',7,'Niveaux en Hauteur'],
 			['L_Diametre',8000.mm,'Diamètre au sol'],
 			['L_Hauteur',2905.7.mm,'Hauteur au Sommet'],
 			['N_MIRROR',0,'Fraction Mirroir'],
-			['T_Modelisation','Faces','Modélisation',[["Squelette","Faces"].join("|")]],
-			['T_Ground','Non','Sol',[["Oui","Non"].join("|")]],
-			['T_Rapport','Complet','Rapport',[["Simple","Complet","Aucun"].join("|")]],
-			['T_Tuiles2D','Non','Tuiles En 2D',[["Non","Oui"].join("|")]],
+			['T_Modelisation','Faces','Modélisation',"Squelette|Faces"],
+			['T_Ground','Non','Sol',"Oui|Non"],
+			['T_Rapport','Complet','Rapport',"Simple|Complet|Aucun"],
+			['T_Tuiles2D','Non','Tuiles En 2D',"Non|Oui"],
 			['L_SQUARES',0.mm,'Réhaussement'],
 			['L_RayonConnecteurs',160.mm,'Rayon des Connecteurs'],
 			['L_Tuilage',50.mm,'Chevauchement Tuiles'],

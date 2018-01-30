@@ -1,7 +1,7 @@
 #https://github.com/takion/dome-lozenge jo@redcat.ninja
 
 require 'sketchup.rb'
-module Surikat
+module Takion
 # $takion_%plugin%['%?_(.*)%'] -> ?:
 # N -> Nombre				(Integer)	
 # M -> Nombre Matriciel		(Integer)	
@@ -489,7 +489,7 @@ class PolygonalConvexDome
 				msg += "        #{params['N_Cotes']} Horizontal Segment   -> #{g_t.inch} \n"
 				level+=0.5
 			}
-		endlozenge
+		end
 		msg += "\n Number of Tiles: #{params['N_Cotes']*params['N_Niveaux']} (#{params['N_Cotes']*(params['N_Niveaux']-1)} lozenges + #{params['N_Cotes']} triangles) \n"
 		msg += " With tiles overlapping of #{params['L_Tuilage'].inch} \n"
 		velcro_l = 0.0
@@ -628,6 +628,6 @@ end
 end
 
 if not file_loaded?(File.basename(__FILE__))
-	UI.menu("Plugins").add_item("Lozenge Dome") { Surikat::PolygonalConvexDome.generation }
+	UI.menu("Plugins").add_item("Lozenge Dome") { Takion::PolygonalConvexDome.generation }
 	file_loaded(File.basename(__FILE__))
 end

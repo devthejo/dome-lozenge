@@ -1,14 +1,14 @@
 #https://github.com/takion/dome-lozenge jo@redcat.ninja
 
 require 'sketchup.rb'
-module Surikat
+module Takion
 # $takion_%plugin%['%?_(.*)%'] -> ?:
 # N -> Nombre				(Integer)	
 # M -> Nombre Matriciel		(Integer)	
 # L -> Longueur				(Float.mm)	
 # T -> Type Texte			(String)			-> depuis paramètre selectioné dans une liste
 
-class PolygonalConvexDome
+class PolygonalConvexDomeFR
 	
 	def self.generation
 		self.new
@@ -628,6 +628,6 @@ end
 end
 
 if not file_loaded?(File.basename(__FILE__))
-	UI.menu("Plugins").add_item("Dome Losange") { Surikat::PolygonalConvexDome.generation }
+	UI.menu("Plugins").add_item("Dome Losange") { Takion::PolygonalConvexDomeFR.generation }
 	file_loaded(File.basename(__FILE__))
 end

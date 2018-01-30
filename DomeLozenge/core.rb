@@ -8,7 +8,7 @@ module Takion
 # L -> Longueur				(Float.mm)	
 # T -> Type Texte			(String)			-> depuis paramètre selectioné dans une liste
 
-class PolygonalConvexDomeFR
+class PolygonalConvexDome
 	
 	def self.generation
 		self.new
@@ -21,32 +21,32 @@ class PolygonalConvexDomeFR
 		#<DIALOG>
 		#<default>
 		config = [	
-			# ['T_ShowMatrix','Non','MatrixView',"Oui|Non"],
-			['N_Cotes',16,'Côtés de Révolution'],
-			['N_Niveaux',7,'Niveaux en Hauteur'],
-			['L_Diametre',8000.mm,'Diamètre au sol'],
-			['L_Hauteur',2905.7.mm,'Hauteur au Sommet'],
+			# ['T_ShowMatrix','No','MatrixView',"Yes|No"],
+			['N_Cotes',16,'Sides of rotation around the axis'],
+			['N_Niveaux',7,'Vertical Layer'],
+			['L_Diametre',8000.mm,'Ground diameter'],
+			['L_Hauteur',2905.7.mm,'Height at the top'],
 			['N_MIRROR',0,'Fraction Mirroir'],
-			['T_Modelisation','Faces','Modélisation',"Squelette|Faces"],
-			['T_Ground','Non','Sol',"Oui|Non"],
-			['T_Rapport','Complet','Rapport',"Simple|Complet|Aucun"],
-			['T_Tuiles2D','Non','Tuiles En 2D',"Non|Oui"],
-			['L_SQUARES',0.mm,'Réhaussement'],
-			['L_RayonConnecteurs',160.mm,'Rayon des Connecteurs'],
-			['L_Tuilage',50.mm,'Chevauchement Tuiles'],
-			['L_Diametre_Arretes',20.mm,'Diamètre Arêtes'],
-			['L_EPAISSEUR',0.mm,'Epaisseur'],
-			['L_VORTEX',0.mm,'Diamètre vortex'],
-			['RVB_BACK_FACES','green','Couleur faces externes'],
-			['RVB_BACK_SOL','green','Couleur sol externes'],
-			['RVB_FACES','white','Couleur faces internes'],
-			['RVB_SOL','white','Couleur sol internes'],
+			['T_Modelisation','Faces','Modelisation',"Squelette|Faces"],
+			['T_Ground','No','Ground',"Yes|No"],
+			['T_Rapport','Full','Rapport',"Light|Full|None"],
+			['T_Tuiles2D','No','2D Tiles',"No|Yes"],
+			['L_SQUARES',0.mm,'Raising from ground'],
+			['L_RayonConnecteurs',160.mm,'Radius of Connectors'],
+			['L_Tuilage',50.mm,'Tiles Overlapping'],
+			['L_Diametre_Arretes',20.mm,'Edges Diameter'],
+			['L_EPAISSEUR',0.mm,'Thickness'],
+			['L_VORTEX',0.mm,'Vortex diameter'],
+			['RVB_BACK_FACES','green','External faces color'],
+			['RVB_BACK_SOL','green','External ground color'],
+			['RVB_FACES','white','Internal faces color'],
+			['RVB_SOL','white','Internal ground color'],
 		]
 		$takion_pcd = {} if not $takion_pcd
 		0.upto(config.length-1){ |i|
 			$takion_pcd[config[i][0]] = config[i][1] if not $takion_pcd[config[i][0]]
 		}
-		$takion_pcd['T_ShowMatrix'] = 'Non'
+		$takion_pcd['T_ShowMatrix'] = 'No'
 		#</default>
 		#<prompt>
 		results = nil
@@ -69,10 +69,10 @@ class PolygonalConvexDomeFR
 				$takion_pcd[config[i][0]] = results[i]
 			}
 			#<validation>
-			raise "Minimum 2 niveaux requis"  if ( $takion_pcd['N_Niveaux'] < 2 )
-			raise "Minimum 3 côtés requis"  if ( $takion_pcd['N_Cotes'] < 3 )
-			raise "Diamètre non nulle requis"  if ( $takion_pcd['L_Diametre'] <= 0 )
-			raise "Hauteur non nulle requise"  if ( $takion_pcd['L_Hauteur'] <= 0 )
+			raise "Minimum vertical layer is 2"  if ( $takion_pcd['N_Niveaux'] < 2 )
+			raise "Minimum 3 Sides of rotation around the axis"  if ( $takion_pcd['N_Cotes'] < 3 )
+			raise "Non-zero Diameter required"  if ( $takion_pcd['L_Diametre'] <= 0 )
+			raise "Non-zero Height required"  if ( $takion_pcd['L_Hauteur'] <= 0 )
 			#</validation>
 		rescue
 			UI.messagebox $!.message
@@ -81,7 +81,7 @@ class PolygonalConvexDomeFR
 		#</prompt>
 		#</DIALOG>
 		#<DEFINITION>
-		Sketchup::set_status_text("Modélisation du Dome Polygonal Régulier Convexe en cours ...")
+		Sketchup::set_status_text("Polygonal Convex Dome modelisation in progress ...")
 		$mo.start_operation 'ConvexDome - Structure Processing'
 		# @definition = $mo.definitions.add 'ConvexDome'
 		# $entities = @definition.entities
@@ -90,19 +90,19 @@ class PolygonalConvexDomeFR
 		params = create_convexdome($takion_pcd, 0, 0)
 		create_convexdome($takion_pcd, 0, 1)
 		
-		if(params['T_Ground']=='Oui')
+		if(params['T_Ground']=='Yes')
 			create_ground params
 		end
 		if(params['L_SQUARES']!=0)
 			create_squares params
 		end
-		if(params['T_Tuiles2D']=='Oui')
+		if(params['T_Tuiles2D']=='Yes')
 			create_tiles params
 		end
-		if(params['T_Rapport']!='Aucun')
+		if(params['T_Rapport']!='None')
 			create_rapport params
 		end
-		if(params['T_ShowMatrix']=='Oui')
+		if(params['T_ShowMatrix']=='Yes')
 			show_matrix
 		end
 		
@@ -110,8 +110,8 @@ class PolygonalConvexDomeFR
 		# $mo.place_component @definition
 		if not $takion_pcd_l
 			UI.messagebox("\nLozenge Dome Creator" <<
-			"\nLogiciel libre développé par Jo - jo@redcat.ninja" <<
-			"\nhttps://github.com/takion/dome-lozenge", "Lozenge Dome Creator - Logiciel libre")
+			"\OpenSource software developed by Jo - jo@redcat.ninja" <<
+			"\nhttps://github.com/takion/dome-lozenge", "Lozenge Dome - Open software")
 			$takion_pcd_l = true
 		end
 		#</DEFINITION>
@@ -237,8 +237,8 @@ class PolygonalConvexDomeFR
 						end
 						@hauteurs.push @matrix_pts[j-2][i-1][2]
 						@tirants.push distanceT
-						0.upto(params['M_Niveaux']){ |s| #arêtes
-							if (params['M_Niveaux']%2==0&&i-s>0)||(params['M_Niveaux']%2==1&&i!=1&&i-s!=0) #enlève le premier niveau d'arêtes
+						0.upto(params['M_Niveaux']){ |s| #arrêtes
+							if (params['M_Niveaux']%2==0&&i-s>0)||(params['M_Niveaux']%2==1&&i!=1&&i-s!=0) #enlève le premier niveau d'arrêtes
 								distanceA = check_distance @matrix_pts[j-1][i-s], @matrix_pts[j][i-s]
 								if(distanceA>0)
 									if(params['T_Modelisation']=='Squelette'&&step==2)
@@ -418,38 +418,38 @@ class PolygonalConvexDomeFR
 		segments_lenth = segments_lenth.inch		
 		
 		msg = ""
-		msg += " Côtés: #{params["N_Cotes"]} \n"
-		msg += " Niveaux: #{params["N_Niveaux"]} \n"
-		msg += " Hauteur: #{params["L_Hauteur"]} \n"
-		msg += " Diamètre au sol: #{params["L_Diametre"]} \n"
-		msg += " Aire au sol: #{@ground_area}² \n"
-		msg += "\n Nombre de Connecteurs: #{@connecteurs_nb} \n"
-		msg += " #{params['N_Cotes']} x Connecteurs 4"
+		msg += " Sides: #{params["N_Cotes"]} \n"
+		msg += " Levels: #{params["N_Niveaux"]} \n"
+		msg += " Height: #{params["L_Hauteur"]} \n"
+		msg += " Diameter: #{params["L_Diametre"]} \n"
+		msg += " Ground area: #{@ground_area}² \n"
+		msg += "\n Number of connectors: #{@connecteurs_nb} \n"
+		msg += " #{params['N_Cotes']} x connectors 4"
 		if(params['L_SQUARES']!=0)
 			msg += " ou 5"
 		end
 		msg += " branches \n"
-		msg += " #{sixbranch_connection} x Connecteurs 6 branches \n"
-		msg += " #{params['N_Cotes']} x Connecteurs 5 branches \n"
-		msg += " 1 x Connecteur #{params['N_Cotes']} branches \n"
-		msg += "\n Rayon des connecteurs: #{rayonConnecteurs} \n"
-		msg += "  -> Longueur de tube nécessaire: #{tubes_length} \n"
-		msg += "\n Nombre Total de Segments: #{@segments_nb} \n"
-		msg += " Longeur totale des segments: #{segments_lenth} \n"
-		msg += " Nombre de Tirants: #{@tirants_nb} \n"
-		msg += " Longeur totale des tirants: #{tirants_lenth} \n"
+		msg += " #{sixbranch_connection} x connectors 6 branches \n"
+		msg += " #{params['N_Cotes']} x connectors 5 branches \n"
+		msg += " 1 x connector #{params['N_Cotes']} branches \n"
+		msg += "\n Radius of connectors: #{rayonConnecteurs} \n"
+		msg += "  -> Required Tube Length: #{tubes_length} \n"
+		msg += "\n Total Number of Segments: #{@segments_nb} \n"
+		msg += " Total Length of Segments: #{segments_lenth} \n"
+		msg += " Number of horizontal segments: #{@tirants_nb} \n"
+		msg += " Total length of horizontal segments: #{tirants_lenth} \n"
 		msg_diametres = ""
 		msg_hauteurs = ""
 		msg_hauteursB = ""
-		if(params['T_Rapport']=='Complet')
+		if(params['T_Rapport']=='Full')
 			@tirants.each_index{ |k|
-				msg += "    Niveau #{k+1}: #{params['N_Cotes']} Tirants de #{@tirants[-(k+1)]} \n"
+				msg += "    Level #{k+1}: #{params['N_Cotes']} Tirants de #{@tirants[-(k+1)]} \n"
 				diam_niv = rayon_polygone_regulier params['N_Cotes'].to_f,@tirants[-(k+1)]
 				diam_niv = diam_niv.to_l*2.0
-				msg_diametres += "    Diamètre Niveau #{k+1}: #{diam_niv.inch} \n"
-				msg_hauteurs += "    Hauteur au sol Niveau #{k+1}: #{@hauteurs[k].inch} \n"
+				msg_diametres += "    Diameter at Level #{k+1}: #{diam_niv.inch} \n"
+				msg_hauteurs += "    Height from ground at Level #{k+1}: #{@hauteurs[k].inch} \n"
 				if(params['L_SQUARES']!=0)
-					msg_hauteursB += "    Hauteur Dome Niveau #{k+1}: #{(@hauteurs[k]-params['L_SQUARES']).inch} \n"
+					msg_hauteursB += "    Dome Height at Level #{k+1}: #{(@hauteurs[k]-params['L_SQUARES']).inch} \n"
 				end
 			}
 		end
@@ -461,37 +461,37 @@ class PolygonalConvexDomeFR
 			msg += msg_hauteursB+" \n"
 		end
 		
-		msg += " Nombre d'Arêtes: #{@arretes_nb} \n"
-		msg += " Longeur totale des arêtes: #{arretes_lenth} \n"
-		if(params['T_Rapport']=='Complet')
+		msg += " Number of vertical segments: #{@arretes_nb} \n"
+		msg += " Total length of vertical segments: #{arretes_lenth} \n"
+		if(params['T_Rapport']=='Full')
 			@arretes.each_index{ |k|
 				if k==params['N_Niveaux']-1
 					xna = params['N_Cotes']
 				else
 					xna = params['M_Cotes']
 				end
-				msg += "    Niveau #{k+1}: #{xna} Arêtes de #{@arretes[-(k+1)]} \n"
+				msg += "    Level #{k+1}: #{xna} vertical segments of #{@arretes[-(k+1)]} \n"
 			}
 		end
-		msg += "\n Nombre de Triangles: #{@arretes_nb} \n"
-		msg += " Aire totale des triangles: #{@dome_top_area.inch}² \n"
+		msg += "\n Number of Triangles: #{@arretes_nb} \n"
+		msg += " Total Area of triangles: #{@dome_top_area.inch}² \n"
 		if(params['L_SQUARES']!=0)
-			msg += " Aire totale des Carrés: #{@squares_area.inch}² \n"
-			msg += " Aire totale Triangles+Carrés: #{@total_top_area.inch}² \n"
+			msg += " Total Area of Squares: #{@squares_area.inch}² \n"
+			msg += " Total Area of Triangles+Squares: #{@total_top_area.inch}² \n"
 		end
-		if(params['T_Rapport']=='Complet')
+		if(params['T_Rapport']=='Full')
 			level = 1
 			@triangles.each_index{ |k|
 				g_t = @triangles[k][0]
 				g_a = @triangles[k][1]
-				msg += "    Niveau #{level}     -> #{params['N_Cotes']} Triangles \n"
-				msg += "        #{params['N_Cotes']} Arrête     -> #{g_a.inch} \n"
-				msg += "        #{params['N_Cotes']} Tirant     -> #{g_t.inch} \n"
+				msg += "    Level #{level}     -> #{params['N_Cotes']} Triangles \n"
+				msg += "        #{params['N_Cotes']} Vertical Segment     -> #{g_a.inch} \n"
+				msg += "        #{params['N_Cotes']} Horizontal Segment   -> #{g_t.inch} \n"
 				level+=0.5
 			}
 		end
-		msg += "\n Nombre de Tuiles: #{params['N_Cotes']*params['N_Niveaux']} (#{params['N_Cotes']*(params['N_Niveaux']-1)} losanges + #{params['N_Cotes']} triangles) \n"
-		msg += " Avec chevauchement de tuilage de #{params['L_Tuilage'].inch} \n"
+		msg += "\n Number of Tiles: #{params['N_Cotes']*params['N_Niveaux']} (#{params['N_Cotes']*(params['N_Niveaux']-1)} lozenges + #{params['N_Cotes']} triangles) \n"
+		msg += " With tiles overlapping of #{params['L_Tuilage'].inch} \n"
 		velcro_l = 0.0
 		level = 1
 		i = 0
@@ -505,18 +505,18 @@ class PolygonalConvexDomeFR
 				area = aire_triangle_isocele(g_t,g_a2)
 				velcro_l += (g_a2*2 + velcl)*params['N_Cotes']
 				if(k==0)
-					if(params['T_Rapport']=='Complet')						
-						msg += "    Niveau #{i+1}     -> #{params['N_Cotes']} Triangles \n"
-						msg += "      Arrête     -> #{g_a2.inch} \n"
-						msg += "      Tirant     -> #{g_t.inch} \n"
+					if(params['T_Rapport']=='Full')						
+						msg += "    Level #{i+1}     -> #{params['N_Cotes']} Triangles \n"
+						msg += "      Vertical Segment     -> #{g_a2.inch} \n"
+						msg += "      Horizontal Segment   -> #{g_t.inch} \n"
 					end
 				else
 					g_a1 = @tiles_triangles[k-1][1]
-					if(params['T_Rapport']=='Complet')						
+					if(params['T_Rapport']=='Full')						
 						msg += "     Niveau #{i+1}     -> #{params['N_Cotes']} Cerf-volants \n"
-						msg += "        Arrête inférieure  -> #{g_a1.inch} \n"
-						msg += "        Tirant             -> #{g_t.inch} \n"
-						msg += "        Arrête supérieure  -> #{g_a2.inch} \n"
+						msg += "        Vertical Segment bottom  -> #{g_a1.inch} \n"
+						msg += "        Horizontal Segment       -> #{g_t.inch} \n"
+						msg += "        Vertical Segment top     -> #{g_a2.inch} \n"
 					end
 					velcro_l += (g_a1*2 + velcl)*params['N_Cotes']
 					area += aire_triangle_isocele(g_t,g_a1)
@@ -527,10 +527,10 @@ class PolygonalConvexDomeFR
 			end
 		}
 		@dome_tiles_area = @dome_tiles_area*$u_inch*1000
-		msg += "   -> Aire totale des Tuiles: #{@dome_tiles_area.inch}² \n"
-		msg += "\n Avec un diamètre des arêtes de #{params['L_Diametre_Arretes'].inch}"
-		msg += "\n et 1 velcro parallèle + 3 perpendiculaires / arrête "
-		msg += "\n     -> Longueur totale de velcro nécessaire: #{velcro_l.inch} \n"
+		msg += "   -> Total Area of Tiles: #{@dome_tiles_area.inch}² \n"
+		msg += "\n With vertical segment diameter of #{params['L_Diametre_Arretes'].inch}"
+		msg += "\n and 1 velcro parallel + 3 perpendicular / vertical segment "
+		msg += "\n     -> Total of required velcro: #{velcro_l.inch} \n"
 		
 		$mo.add_note msg, 0, 0.03
 	end #create_convexdome
@@ -627,7 +627,5 @@ class PolygonalConvexDomeFR
 end
 end
 
-if not file_loaded?(File.basename(__FILE__))
-	UI.menu("Plugins").add_item("Dome Losange") { Takion::PolygonalConvexDomeFR.generation }
-	file_loaded(File.basename(__FILE__))
-end
+UI.menu("Plugins").add_item("Lozenge Dome") { Takion::PolygonalConvexDome.generation }
+file_loaded(File.basename(__FILE__))

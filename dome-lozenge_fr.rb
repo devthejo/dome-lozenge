@@ -1,8 +1,8 @@
-#https://github.com/surikat/dome-diamond jo@surikat.pro
+#https://github.com/takion/dome-lozenge jo@redcat.ninja
 
 require 'sketchup.rb'
 module Surikat
-# $surikat_%plugin%['%?_(.*)%'] -> ?:
+# $takion_%plugin%['%?_(.*)%'] -> ?:
 # N -> Nombre				(Integer)	
 # M -> Nombre Matriciel		(Integer)	
 # L -> Longueur				(Float.mm)	
@@ -34,19 +34,19 @@ class PolygonalConvexDome
 			['L_SQUARES',0.mm,'Réhaussement'],
 			['L_RayonConnecteurs',160.mm,'Rayon des Connecteurs'],
 			['L_Tuilage',50.mm,'Chevauchement Tuiles'],
-			['L_Diametre_Arretes',20.mm,'Diamètre Arrêtes'],
+			['L_Diametre_Arretes',20.mm,'Diamètre Arêtes'],
 			['L_EPAISSEUR',0.mm,'Epaisseur'],
 			['L_VORTEX',0.mm,'Diamètre vortex'],
-			['RVB_BACK_FACES','green','Couleurs faces externes'],
-			['RVB_BACK_SOL','green','Couleurs sol externes'],
-			['RVB_FACES','white','Couleurs faces internes'],
-			['RVB_SOL','white','Couleurs sol internes'],
+			['RVB_BACK_FACES','green','Couleur faces externes'],
+			['RVB_BACK_SOL','green','Couleur sol externes'],
+			['RVB_FACES','white','Couleur faces internes'],
+			['RVB_SOL','white','Couleur sol internes'],
 		]
-		$surikat_pcd = {} if not $surikat_pcd
+		$takion_pcd = {} if not $takion_pcd
 		0.upto(config.length-1){ |i|
-			$surikat_pcd[config[i][0]] = config[i][1] if not $surikat_pcd[config[i][0]]
+			$takion_pcd[config[i][0]] = config[i][1] if not $takion_pcd[config[i][0]]
 		}
-		$surikat_pcd['T_ShowMatrix'] = 'Non'
+		$takion_pcd['T_ShowMatrix'] = 'Non'
 		#</default>
 		#<prompt>
 		results = nil
@@ -66,15 +66,13 @@ class PolygonalConvexDome
 			results = UI.inputbox prompts,defaults,drops,'Paramètres du Dome Convex'
 			return unless results
 			0.upto(config.length-1){ |i|
-				$surikat_pcd[config[i][0]] = results[i]
+				$takion_pcd[config[i][0]] = results[i]
 			}
 			#<validation>
-			raise "Nombre de niveaux non nulle requis"  if ( $surikat_pcd['N_Niveaux'] <= 0 )
-			raise "Minimum 2 niveaux requis pour un Dome Convexe cohérent"  if ( $surikat_pcd['N_Niveaux'] < 2 )
-			raise "Nombre de côtés non nulle requis"  if( $surikat_pcd['N_Cotes'] <= 0 )
-			raise "Minimum 3 côtés pour un Dome Convexe cohérent"  if ( $surikat_pcd['N_Cotes'] < 3 )
-			raise "Diamètre non nulle requis"  if ( $surikat_pcd['L_Diametre'] <= 0 )
-			raise "Hauteur non nulle requise"  if ( $surikat_pcd['L_Hauteur'] <= 0 )
+			raise "Minimum 2 niveaux requis"  if ( $takion_pcd['N_Niveaux'] < 2 )
+			raise "Minimum 3 côtés requis"  if ( $takion_pcd['N_Cotes'] < 3 )
+			raise "Diamètre non nulle requis"  if ( $takion_pcd['L_Diametre'] <= 0 )
+			raise "Hauteur non nulle requise"  if ( $takion_pcd['L_Hauteur'] <= 0 )
 			#</validation>
 		rescue
 			UI.messagebox $!.message
@@ -84,14 +82,13 @@ class PolygonalConvexDome
 		#</DIALOG>
 		#<DEFINITION>
 		Sketchup::set_status_text("Modélisation du Dome Polygonal Régulier Convexe en cours ...")
-		t1 = Time.now
 		$mo.start_operation 'ConvexDome - Structure Processing'
 		# @definition = $mo.definitions.add 'ConvexDome'
 		# $entities = @definition.entities
 		$group = $mo.active_entities.add_group
 		$entities = $group.entities
-		params = create_convexdome($surikat_pcd, 0, 0)
-		create_convexdome($surikat_pcd, 0, 1)
+		params = create_convexdome($takion_pcd, 0, 0)
+		create_convexdome($takion_pcd, 0, 1)
 		
 		if(params['T_Ground']=='Oui')
 			create_ground params
@@ -111,33 +108,14 @@ class PolygonalConvexDome
 		
 		$mo.commit_operation
 		# $mo.place_component @definition
-		if not $surikat_pcd_l
-			elap = seconds_2_dhms(Time.now - t1) 
-			    UI.messagebox("\nSurisquat Dome" <<
-				"\nModélisation de structures minimales" <<
-				"\n\nLogiciel libre - License MIT" <<
-				"\nDéveloppé par Jo - jo@wildsurikat.com" <<
-				"\nhttps://github.com/surikat/surisquat" <<
-				"\n\n Structure généré en " << elap, MB_MULTILINE, "Dome - Surisquat")
-			$surikat_pcd_l = true
+		if not $takion_pcd_l
+			UI.messagebox("\nLozenge Dome Creator" <<
+			"\nLogiciel libre développé par Jo - jo@redcat.ninja" <<
+			"\nhttps://github.com/takion/dome-lozenge", "Lozenge Dome Creator - Logiciel libre")
+			$takion_pcd_l = true
 		end
 		#</DEFINITION>
 	end
-	
-	def seconds_2_dhms (secs) #from makefaces.rb 1.4 Smustard.com(tm) Ruby Script
-		seconds = secs % 60
-		time = secs.round
-		time /= 60
-		minutes = time % 60
-		time /= 60
-		hours = time % 24
-		days = time / 24
-		if (days > 0) then days = days.to_s<<" Jours(s), "  else days = " " end 
-		if (hours > 0) then hours = hours.to_s<<" Heures(s), " else hours = " " end 
-		if (minutes > 0) then minutes = minutes.to_s<< " Minute(s), " else minutes = " " end  
-		seconds = seconds.to_s<< " Seconde(s)." 
-		return (days<<hours<<minutes<<seconds).strip!
-    end
 	
 	def real_uniq(arr)
 		arr = arr.sort
@@ -259,8 +237,8 @@ class PolygonalConvexDome
 						end
 						@hauteurs.push @matrix_pts[j-2][i-1][2]
 						@tirants.push distanceT
-						0.upto(params['M_Niveaux']){ |s| #arrêtes
-							if (params['M_Niveaux']%2==0&&i-s>0)||(params['M_Niveaux']%2==1&&i!=1&&i-s!=0) #enlève le premier niveau d'arrêtes
+						0.upto(params['M_Niveaux']){ |s| #arêtes
+							if (params['M_Niveaux']%2==0&&i-s>0)||(params['M_Niveaux']%2==1&&i!=1&&i-s!=0) #enlève le premier niveau d'arêtes
 								distanceA = check_distance @matrix_pts[j-1][i-s], @matrix_pts[j][i-s]
 								if(distanceA>0)
 									if(params['T_Modelisation']=='Squelette'&&step==2)
@@ -483,8 +461,8 @@ class PolygonalConvexDome
 			msg += msg_hauteursB+" \n"
 		end
 		
-		msg += " Nombre d'Arrêtes: #{@arretes_nb} \n"
-		msg += " Longeur totale des arrêtes: #{arretes_lenth} \n"
+		msg += " Nombre d'Arêtes: #{@arretes_nb} \n"
+		msg += " Longeur totale des arêtes: #{arretes_lenth} \n"
 		if(params['T_Rapport']=='Complet')
 			@arretes.each_index{ |k|
 				if k==params['N_Niveaux']-1
@@ -492,7 +470,7 @@ class PolygonalConvexDome
 				else
 					xna = params['M_Cotes']
 				end
-				msg += "    Niveau #{k+1}: #{xna} Arrêtes de #{@arretes[-(k+1)]} \n"
+				msg += "    Niveau #{k+1}: #{xna} Arêtes de #{@arretes[-(k+1)]} \n"
 			}
 		end
 		msg += "\n Nombre de Triangles: #{@arretes_nb} \n"
@@ -550,7 +528,7 @@ class PolygonalConvexDome
 		}
 		@dome_tiles_area = @dome_tiles_area*$u_inch*1000
 		msg += "   -> Aire totale des Tuiles: #{@dome_tiles_area.inch}² \n"
-		msg += "\n Avec un diamètre des arrêtes de #{params['L_Diametre_Arretes'].inch}"
+		msg += "\n Avec un diamètre des arêtes de #{params['L_Diametre_Arretes'].inch}"
 		msg += "\n et 1 velcro parallèle + 3 perpendiculaires / arrête "
 		msg += "\n     -> Longueur totale de velcro nécessaire: #{velcro_l.inch} \n"
 		
@@ -643,13 +621,13 @@ class PolygonalConvexDome
 				msg += " ["+j.to_s+"]["+i.to_s+"]: "+@matrix_pts[j][i].to_s+" \n"
 			}
 		}
-		UI.messagebox(msg, MB_MULTILINE, "ConvexDome Matrix - Surisquat")
+		UI.messagebox(msg, MB_MULTILINE, "Lozenge Dome Matrix")
 	end
 
 end
 end
 
 if not file_loaded?(File.basename(__FILE__))
-	UI.menu("Plugins").add_item("Dome Polygonal Convexe Régulier") { Surikat::PolygonalConvexDome.generation }
+	UI.menu("Plugins").add_item("Dome Losange") { Surikat::PolygonalConvexDome.generation }
 	file_loaded(File.basename(__FILE__))
 end

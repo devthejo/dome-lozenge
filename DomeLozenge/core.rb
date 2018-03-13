@@ -110,12 +110,6 @@ module Takion
 				
 				@mo.commit_operation
 				# @mo.place_component @definition
-				if not @takion_pcd_l
-					UI.messagebox("\nLozenge Dome Creator" <<
-					"\OpenSource software developed by Jo - jo@redcat.ninja" <<
-					"\nhttps://github.com/takion/dome-lozenge", "Lozenge Dome - Open software")
-					@takion_pcd_l = true
-				end
 				#</DEFINITION>
 			end
 			
@@ -533,6 +527,8 @@ module Takion
 				msg += "\n With vertical segment diameter of #{params['L_Diametre_Arretes'].inch}"
 				msg += "\n and 1 velcro parallel + 3 perpendicular / vertical segment "
 				msg += "\n     -> Total of required velcro: #{velcro_l.inch} \n"
+				
+				msg += "\n© Lozenge Dome Creator \OpenSource software developed by Jo - jo@redcat.ninja \nhttps://github.com/takion/dome-lozenge"
 				
 				@mo.add_note msg, 0, 0.03
 			end #create_convexdome

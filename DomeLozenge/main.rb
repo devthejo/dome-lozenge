@@ -31,7 +31,7 @@ module Takion
 					['N_MIRROR',0,LH['Mirror Fraction']],
 					['T_Modelisation',LH['Faces'],LH['Modelisation'],LH["Skeleton|Faces"]],
 					['T_Ground',LH['No'],LH['Ground'],LH["Yes|No"]],
-					['T_Rapport',LH['Full'],LH['Rapport'],LH["Light|Full|None"]],
+					['T_Rapport',LH['Full'],LH['Report'],LH["Light|Full|None"]],
 					['T_Tuiles2D',LH['No'],LH['2D Tiles'],LH["No|Yes"]],
 					['L_SQUARES',0.mm,LH['Raising from ground']],
 					['L_RayonConnecteurs',160.mm,LH['Radius of Connectors']],

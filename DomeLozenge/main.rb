@@ -24,31 +24,31 @@ module Takion
 				#<default>
 				config = [	
 					# ['T_ShowMatrix','No','MatrixView',"Yes|No"],
-					['N_Cotes',16,'Sides of rotation around the axis'],
-					['N_Niveaux',7,'Vertical Layer'],
-					['L_Diametre',8000.mm,'Ground diameter'],
-					['L_Hauteur',2905.7.mm,'Height at the top'],
-					['N_MIRROR',0,'Fraction Mirroir'],
-					['T_Modelisation','Faces','Modelisation',"Squelette|Faces"],
-					['T_Ground','No','Ground',"Yes|No"],
-					['T_Rapport','Full','Rapport',"Light|Full|None"],
-					['T_Tuiles2D','No','2D Tiles',"No|Yes"],
-					['L_SQUARES',0.mm,'Raising from ground'],
-					['L_RayonConnecteurs',160.mm,'Radius of Connectors'],
-					['L_Tuilage',50.mm,'Tiles Overlapping'],
-					['L_Diametre_Arretes',20.mm,'Edges Diameter'],
-					['L_EPAISSEUR',0.mm,'Thickness'],
-					['L_VORTEX',0.mm,'Vortex diameter'],
-					['RVB_BACK_FACES','green','External faces color'],
-					['RVB_BACK_SOL','green','External ground color'],
-					['RVB_FACES','white','Internal faces color'],
-					['RVB_SOL','white','Internal ground color'],
+					['N_Cotes',16,LH['Sides of rotation around the axis']],
+					['N_Niveaux',7,LH['Vertical Layer']],
+					['L_Diametre',8000.mm,LH['Ground diameter']],
+					['L_Hauteur',2905.7.mm,LH['Height at the top']],
+					['N_MIRROR',0,LH['Mirror Fraction']],
+					['T_Modelisation',LH['Faces'],LH['Modelisation'],LH["Skeleton|Faces"]],
+					['T_Ground',LH['No'],LH['Ground'],LH["Yes|No"]],
+					['T_Rapport',LH['Full'],LH['Rapport'],LH["Light|Full|None"]],
+					['T_Tuiles2D',LH['No'],LH['2D Tiles'],LH["No|Yes"]],
+					['L_SQUARES',0.mm,LH['Raising from ground']],
+					['L_RayonConnecteurs',160.mm,LH['Radius of Connectors']],
+					['L_Tuilage',50.mm,LH['Tiles Overlapping']],
+					['L_Diametre_Arretes',20.mm,LH['Edges Diameter']],
+					['L_EPAISSEUR',0.mm,LH['Thickness']],
+					['L_VORTEX',0.mm,LH['Vortex diameter']],
+					['RVB_BACK_FACES','green',LH['External faces color']],
+					['RVB_BACK_SOL','green',LH['External ground color']],
+					['RVB_FACES','white',LH['Internal faces color']],
+					['RVB_SOL','white',LH['Internal ground color']],
 				]
 				@takion_pcd = {} if not @takion_pcd
 				0.upto(config.length-1){ |i|
 					@takion_pcd[config[i][0]] = config[i][1] if not @takion_pcd[config[i][0]]
 				}
-				@takion_pcd['T_ShowMatrix'] = 'No'
+				@takion_pcd['T_ShowMatrix'] = LH['No']
 				#</default>
 				#<prompt>
 				results = nil
@@ -65,16 +65,16 @@ module Takion
 					end
 				}
 				begin
-					results = UI.inputbox prompts,defaults,drops,'Paramètres du Dome Convex'
+					results = UI.inputbox prompts,defaults,drops,LH['Dome Parameters']
 					return unless results
 					0.upto(config.length-1){ |i|
 						@takion_pcd[config[i][0]] = results[i]
 					}
 					#<validation>
-					raise "Minimum vertical layer is 2"  if ( @takion_pcd['N_Niveaux'] < 2 )
-					raise "Minimum 3 Sides of rotation around the axis"  if ( @takion_pcd['N_Cotes'] < 3 )
-					raise "Non-zero Diameter required"  if ( @takion_pcd['L_Diametre'] <= 0 )
-					raise "Non-zero Height required"  if ( @takion_pcd['L_Hauteur'] <= 0 )
+					raise LH["Minimum vertical layer is 2"]  if ( @takion_pcd['N_Niveaux'] < 2 )
+					raise LH["Minimum 3 Sides of rotation around the axis"]  if ( @takion_pcd['N_Cotes'] < 3 )
+					raise LH["Non-zero Diameter required"]  if ( @takion_pcd['L_Diametre'] <= 0 )
+					raise LH["Non-zero Height required"]  if ( @takion_pcd['L_Hauteur'] <= 0 )
 					#</validation>
 				rescue
 					UI.messagebox $!.message
@@ -83,8 +83,8 @@ module Takion
 				#</prompt>
 				#</DIALOG>
 				#<DEFINITION>
-				Sketchup::set_status_text("Polygonal Convex Dome modelisation in progress ...")
-				@mo.start_operation 'ConvexDome - Structure Processing'
+				Sketchup::set_status_text(LH["Polygonal Convex Dome modelisation in progress ..."])
+				@mo.start_operation LH['ConvexDome - Structure Processing']
 				# @definition = @mo.definitions.add 'ConvexDome'
 				# @entities = @definition.entities
 				@group = @mo.active_entities.add_group
@@ -92,19 +92,19 @@ module Takion
 				params = create_convexdome(@takion_pcd, 0, 0)
 				create_convexdome(@takion_pcd, 0, 1)
 				
-				if(params['T_Ground']=='Yes')
+				if(params['T_Ground']==LH['Yes'])
 					create_ground params
 				end
 				if(params['L_SQUARES']!=0)
 					create_squares params
 				end
-				if(params['T_Tuiles2D']=='Yes')
+				if(params['T_Tuiles2D']==LH['Yes'])
 					create_tiles params
 				end
-				if(params['T_Rapport']!='None')
+				if(params['T_Rapport']!=LH['None'])
 					create_rapport params
 				end
-				if(params['T_ShowMatrix']=='Yes')
+				if(params['T_ShowMatrix']==LH['Yes'])
 					show_matrix
 				end
 				
@@ -224,7 +224,7 @@ module Takion
 						if ( (params['M_Niveaux']%2==0&&i>1)||(params['M_Niveaux']%2==1&&(i-1!=0||j%2==1)) ) #enlève le premier niveau de @tirants
 							distanceT = check_distance @matrix_pts[j-2][i-1], @matrix_pts[j][i-1] #@tirants
 							if(distanceT>0)
-								if(params['T_Modelisation']=='Squelette'&&step==2)
+								if(params['T_Modelisation']==LH['Skeleton']&&step==2)
 									@entities.add_line @matrix_pts[j-2][i-1], @matrix_pts[j][i-1]
 								end
 								if (params['M_Niveaux']%2==1&&i==1) || (params['M_Niveaux']%2==0&&i==2&&j%2==1)
@@ -237,7 +237,7 @@ module Takion
 									if (params['M_Niveaux']%2==0&&i-s>0)||(params['M_Niveaux']%2==1&&i!=1&&i-s!=0) #enlève le premier niveau d'arrêtes
 										distanceA = check_distance @matrix_pts[j-1][i-s], @matrix_pts[j][i-s]
 										if(distanceA>0)
-											if(params['T_Modelisation']=='Squelette'&&step==2)
+											if(params['T_Modelisation']==LH['Skeleton']&&step==2)
 												@entities.add_line @matrix_pts[j-1][i-s], @matrix_pts[j][i-s]
 											end
 											if(sens==0||( sens==1&&i<params['N_MIRROR']+2 ))
@@ -308,7 +308,7 @@ module Takion
 					@dome_top_area = 0.0
 					@squares_area = 0.0
 					@total_top_area = 0.0
-					if(params['T_Modelisation']=='Faces')
+					if(params['T_Modelisation']==LH['Faces'])
 						@faces.each{|f|					
 							face = @entities.add_face f
 							face.back_material = params['RVB_BACK_FACES']
@@ -375,7 +375,7 @@ module Takion
 			end
 			
 			def create_ground(params)
-				if(params['T_Modelisation']=='Faces')
+				if(params['T_Modelisation']==LH['Faces'])
 					if(params['L_SQUARES']==0)
 						face = @entities.add_face @ground_pts
 						face.back_material = params['RVB_BACK_SOL']
@@ -414,38 +414,38 @@ module Takion
 				segments_lenth = segments_lenth.inch		
 				
 				msg = ""
-				msg += " Sides: #{params["N_Cotes"]} \n"
-				msg += " Levels: #{params["N_Niveaux"]} \n"
-				msg += " Height: #{params["L_Hauteur"]} \n"
-				msg += " Diameter: #{params["L_Diametre"]} \n"
-				msg += " Ground area: #{@ground_area}² \n"
-				msg += "\n Number of connectors: #{@connecteurs_nb} \n"
-				msg += " #{params['N_Cotes']} x connectors 4"
+				msg += " "+LH["Sides"]+": #{params["N_Cotes"]} \n"
+				msg += " "+LH["Levels"]+": #{params["N_Niveaux"]} \n"
+				msg += " "+LH["Height"]+": #{params["L_Hauteur"]} \n"
+				msg += " "+LH["Diameter"]+": #{params["L_Diametre"]} \n"
+				msg += " "+LH["Ground area"]+": #{@ground_area}² \n"
+				msg += "\n "+LH["Number of connectors"]+": #{@connecteurs_nb} \n"
+				msg += " #{params['N_Cotes']} x "+LH["connectors"]+" 4"
 				if(params['L_SQUARES']!=0)
-					msg += " ou 5"
+					msg += " "+LH["or"]+" 5"
 				end
-				msg += " branches \n"
-				msg += " #{sixbranch_connection} x connectors 6 branches \n"
-				msg += " #{params['N_Cotes']} x connectors 5 branches \n"
-				msg += " 1 x connector #{params['N_Cotes']} branches \n"
-				msg += "\n Radius of connectors: #{rayonConnecteurs} \n"
-				msg += "  -> Required Tube Length: #{tubes_length} \n"
-				msg += "\n Total Number of Segments: #{@segments_nb} \n"
-				msg += " Total Length of Segments: #{segments_lenth} \n"
-				msg += " Number of horizontal segments: #{@tirants_nb} \n"
-				msg += " Total length of horizontal segments: #{tirants_lenth} \n"
+				msg += " "+LH["branches"]+" \n"
+				msg += " #{sixbranch_connection} x "+LH["connectors 6 branches"]+" \n"
+				msg += " #{params['N_Cotes']} x "+LH["connectors 5 branches"]+" \n"
+				msg += " 1 x "+LH["connector"]+" #{params['N_Cotes']} "+LH["branches"]+" \n"
+				msg += "\n "+LH["Radius of connectors"]+": #{rayonConnecteurs} \n"
+				msg += "  -> "+LH["Required Tube Length"]+": #{tubes_length} \n"
+				msg += "\n "+LH["Total Number of Segments"]+": #{@segments_nb} \n"
+				msg += " "+LH["Total Length of Segments"]+": #{segments_lenth} \n"
+				msg += " "+LH["Number of horizontal segments"]+": #{@tirants_nb} \n"
+				msg += " "+LH["Total length of horizontal segments"]+": #{tirants_lenth} \n"
 				msg_diametres = ""
 				msg_hauteurs = ""
 				msg_hauteursB = ""
-				if(params['T_Rapport']=='Full')
+				if(params['T_Rapport']==LH['Full'])
 					@tirants.each_index{ |k|
-						msg += "    Level #{k+1}: #{params['N_Cotes']} Tirants de #{@tirants[-(k+1)]} \n"
+						msg += "    "+LH["Level"]+" #{k+1}: #{params['N_Cotes']} "+LH["Horizontals Segments of"]+" #{@tirants[-(k+1)]} \n"
 						diam_niv = rayon_polygone_regulier params['N_Cotes'].to_f,@tirants[-(k+1)]
 						diam_niv = diam_niv.to_l*2.0
-						msg_diametres += "    Diameter at Level #{k+1}: #{diam_niv.inch} \n"
-						msg_hauteurs += "    Height from ground at Level #{k+1}: #{@hauteurs[k].inch} \n"
+						msg_diametres += "    "+LH["Diameter at Level"]+" #{k+1}: #{diam_niv.inch} \n"
+						msg_hauteurs += "    "+LH["Height from ground at Level"]+" #{k+1}: #{@hauteurs[k].inch} \n"
 						if(params['L_SQUARES']!=0)
-							msg_hauteursB += "    Dome Height at Level #{k+1}: #{(@hauteurs[k]-params['L_SQUARES']).inch} \n"
+							msg_hauteursB += "    "+LH["Dome Height at Level"]+" #{k+1}: #{(@hauteurs[k]-params['L_SQUARES']).inch} \n"
 						end
 					}
 				end
@@ -457,38 +457,37 @@ module Takion
 					msg += msg_hauteursB+" \n"
 				end
 				
-				msg += " Number of vertical segments: #{@arretes_nb} \n"
-				msg += " Total length of vertical segments: #{arretes_lenth} \n"
-				if(params['T_Rapport']=='Full')
+				msg += " "+LH["Number of vertical segments"]+": #{@arretes_nb} \n"
+				msg += " "+LH["Total length of vertical segments"]+": #{arretes_lenth} \n"
+				if(params['T_Rapport']==LH['Full'])
 					@arretes.each_index{ |k|
 						if k==params['N_Niveaux']-1
 							xna = params['N_Cotes']
 						else
 							xna = params['M_Cotes']
 						end
-						msg += "    Level #{k+1}: #{xna} vertical segments of #{@arretes[-(k+1)]} \n"
+						msg += "    "+LH["Level"]+" #{k+1}: #{xna} "+LH["vertical segments of"]+" #{@arretes[-(k+1)]} \n"
 					}
 				end
-				msg += "\n Number of Triangles: #{@arretes_nb} \n"
-				msg += " Total Area of triangles: #{@dome_top_area.inch}² \n"
+				msg += "\n "+LH["Number of Triangles"]+": #{@arretes_nb} \n"
+				msg += " "+LH["Total Area of triangles"]+": #{@dome_top_area.inch}² \n"
 				if(params['L_SQUARES']!=0)
-					msg += " Total Area of Squares: #{@squares_area.inch}² \n"
-					msg += " Total Area of Triangles+Squares: #{@total_top_area.inch}² \n"
+					msg += " "+LH["Total Area of Squares"]+": #{@squares_area.inch}² \n"
+					msg += " "+LH["Total Area of Triangles + Squares"]+": #{@total_top_area.inch}² \n"
 				end
-				if(params['T_Rapport']=='Full')
+				if(params['T_Rapport']==LH['Full'])
 					level = 1
 					@triangles.each_index{ |k|
 						g_t = @triangles[k][0]
 						g_a = @triangles[k][1]
-						msg += "    Level #{level}     -> #{params['N_Cotes']} Triangles \n"
-						msg += "        #{params['N_Cotes']} Vertical Segment     -> #{g_a.inch} \n"
-						msg += "        #{params['N_Cotes']} Horizontal Segment   -> #{g_t.inch} \n"
+						msg += "    "+LH["Level"]+" #{level}     -> #{params['N_Cotes']} "+LH["Triangles"]+" \n"
+						msg += "        #{params['N_Cotes']} "+LH["Vertical Segment"]+"     -> #{g_a.inch} \n"
+						msg += "        #{params['N_Cotes']} "+LH["Horizontal Segment"]+"   -> #{g_t.inch} \n"
 						level+=0.5
 					}
 				end
-				msg += "\n Number of Tiles: #{params['N_Cotes']*params['N_Niveaux']} (#{params['N_Cotes']*(params['N_Niveaux']-1)} lozenges + #{params['N_Cotes']} triangles) \n"
-				msg += " With tiles overlapping of #{params['L_Tuilage'].inch} \n"
-				velcro_l = 0.0
+				msg += "\n "+LH["Number of Tiles"]+": #{params['N_Cotes']*params['N_Niveaux']} (#{params['N_Cotes']*(params['N_Niveaux']-1)} lozenges + #{params['N_Cotes']} "+LH["triangles"]+") \n"
+				msg += " "+LH["With tiles overlapping of"]+" #{params['L_Tuilage'].inch} \n"
 				level = 1
 				i = 0
 				perimar = params['L_Diametre_Arretes']*Math::PI
@@ -499,22 +498,20 @@ module Takion
 						g_t = @tiles_triangles[k][0]
 						g_a2 = @triangles[k][1]
 						area = aire_triangle_isocele(g_t,g_a2)
-						velcro_l += (g_a2*2 + velcl)*params['N_Cotes']
 						if(k==0)
-							if(params['T_Rapport']=='Full')						
-								msg += "    Level #{i+1}     -> #{params['N_Cotes']} Triangles \n"
-								msg += "      Vertical Segment     -> #{g_a2.inch} \n"
-								msg += "      Horizontal Segment   -> #{g_t.inch} \n"
+							if(params['T_Rapport']==LH['Full'])						
+								msg += "    "+LH["Level"]+" #{i+1}     -> #{params['N_Cotes']} "+LH["Triangles"]+" \n"
+								msg += "      "+LH["Vertical Segment"]+"     -> #{g_a2.inch} \n"
+								msg += "      "+LH["Horizontal Segment"]+"   -> #{g_t.inch} \n"
 							end
 						else
 							g_a1 = @tiles_triangles[k-1][1]
-							if(params['T_Rapport']=='Full')						
-								msg += "     Niveau #{i+1}     -> #{params['N_Cotes']} Cerf-volants \n"
-								msg += "        Vertical Segment bottom  -> #{g_a1.inch} \n"
-								msg += "        Horizontal Segment       -> #{g_t.inch} \n"
-								msg += "        Vertical Segment top     -> #{g_a2.inch} \n"
+							if(params['T_Rapport']==LH['Full'])						
+								msg += "     "+LH["Level"]+" #{i+1}     -> #{params['N_Cotes']} "+LH["Lozenges"]+" \n"
+								msg += "        "+LH["Vertical Segment bottom"]+"  -> #{g_a1.inch} \n"
+								msg += "        "+LH["Horizontal Segment"]+"       -> #{g_t.inch} \n"
+								msg += "        "+LH["Vertical Segment top"]+"     -> #{g_a2.inch} \n"
 							end
-							velcro_l += (g_a1*2 + velcl)*params['N_Cotes']
 							area += aire_triangle_isocele(g_t,g_a1)
 						end
 						@dome_tiles_area+=params['N_Cotes'].to_f*area.inch
@@ -523,12 +520,10 @@ module Takion
 					end
 				}
 				@dome_tiles_area = @dome_tiles_area*@u_inch*1000
-				msg += "   -> Total Area of Tiles: #{@dome_tiles_area.inch}² \n"
-				msg += "\n With vertical segment diameter of #{params['L_Diametre_Arretes'].inch}"
-				msg += "\n and 1 velcro parallel + 3 perpendicular / vertical segment "
-				msg += "\n     -> Total of required velcro: #{velcro_l.inch} \n"
+				msg += "   -> "+LH["Total Area of Tiles"]+": #{@dome_tiles_area.inch}² \n"
+				msg += "\n "+LH["With vertical segment diameter of"]+" #{params['L_Diametre_Arretes'].inch}"
 				
-				msg += "\n© Lozenge Dome Creator \OpenSource software developed by Jo - jo@redcat.ninja \nhttps://github.com/takion/dome-lozenge"
+				msg += "\n© "+LH["Lozenge Dome Creator - OpenSource software developed by Jo"]+" - jo@redcat.ninja \nhttps://github.com/takion/dome-lozenge"
 				
 				@mo.add_note msg, 0, 0.03
 			end #create_convexdome
@@ -619,12 +614,12 @@ module Takion
 						msg += " ["+j.to_s+"]["+i.to_s+"]: "+@matrix_pts[j][i].to_s+" \n"
 					}
 				}
-				UI.messagebox(msg, MB_MULTILINE, "Lozenge Dome Matrix")
+				UI.messagebox(msg, MB_MULTILINE, LH["Lozenge Dome Matrix"])
 			end
 
 		end
 
-		UI.menu("Plugins").add_item("Lozenge Dome") { DomeLozenge.generation }
+		UI.menu("Plugins").add_item(LH["Lozenge Dome"]) { DomeLozenge.generation }
 		file_loaded(File.basename(__FILE__))
 		
 	end

@@ -23,4 +23,4 @@
 [![Dome Sample](https://raw.githubusercontent.com/takion/dome-lozenge/master/img/dome-10-5.png)](https://github.com/takion/dome-lozenge#)
 
 # See also
-https://github.com/takion/zome-polar-rhombizonahedron
+https://github.com/takion/zome-polar-rhombizonohedron

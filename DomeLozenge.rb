@@ -13,7 +13,7 @@ module Takion
     end
   
     dome_extension = SketchupExtension.new('Dome Lozenge', 'DomeLozenge/main.rb')
-    dome_extension.version = '1.3.0'
+    dome_extension.version = '1.3.1'
     dome_extension.copyright = '2018'
     dome_extension.description = 'Dome Lozenge Creator'
     dome_extension.creator = 'Jo Takion <jo@redcat.ninja>'
